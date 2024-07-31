@@ -8,6 +8,19 @@ class hit_record {
     point3 p;
     vec3 normal;
     double t;
+    bool front_face;
+    
+    /*记录模型正反面
+    * front_face 是根据射线检测获取正反面标识
+    * 正反面的法线相反
+    * 射线检测反面与外法线点乘将始终为正数
+    * 射线检测正面与外法线点乘将始终为负数
+    */
+    void set_face_normal(const ray& r, const vec3& outward_normal) {
+
+        front_face = dot(r.direction(), outward_normal) < 0;
+        normal = front_face ? outward_normal : -outward_normal;
+    }
 };
 
 class hittable {
