@@ -1,30 +1,18 @@
 #include "color.h"
 #include "vec3.h"
 #include "ray.h"
-
+#include "sphere.h"
 #include <iostream>
 
-double hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc = center - r.origin();
-    auto a = r.direction().length_squared();
-    auto h = dot(r.direction(), oc);
-    auto c = oc.length_squared() - radius*radius;
-    auto discriminant = h*h - a*c;
 
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (h - std::sqrt(discriminant)) / a;
-    }
-}
 
 color ray_color(const ray& r) {
     vec3 sphere_loc = vec3(0,0,-1);
-    auto t = hit_sphere(sphere_loc, 0.5, r);
-    if (t > 0.0)
+    auto sphere1 = sphere(sphere_loc, 0.5);
+    auto hit = hit_record();
+    if (sphere1.hit(r,0.5,1, hit))
     {
-        vec3 N = unit_vector(r.at(t) - sphere_loc);
-        return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
+        return 0.5*color(hit.normal.x() + 1, hit.normal.y() + 1, hit.normal.z() + 1);
     }
 
     //background
