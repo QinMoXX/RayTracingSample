@@ -13,3 +13,7 @@ cmake --build build --config release
 ```
 
 使用ppm工具打开，如果发现格式化错误，请使用转化为utf-8编码格式保存
+
+# 抗锯齿
+对采样点周边进行多次随机采样积分，这并不是最好的技术但是一个简单有效的示例。
+![alt text](autialiasing.png)

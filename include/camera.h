@@ -11,6 +11,7 @@ class camera {
     double aspect_ratio = 1.0;  // 渲染图宽高比
     int    image_width  = 100;  // 渲染图像素宽度
     int    image_height;   // 渲染图高度
+    int    samples_per_pixel = 10; //每采样点随机采样点数
 
     void render(const hittable& world) {
         initialize();
@@ -20,12 +21,12 @@ class camera {
         for (int j = 0; j < image_height; j++) {
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++) {
-                auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                auto ray_direction = pixel_center - center;
-                ray r(center, ray_direction);
-
-                color pixel_color = ray_color(r, world);
-                write_color(std::cout, pixel_color);
+                color pixel_color(0,0,0);
+                for (int sample = 0; sample < samples_per_pixel; sample++) {
+                    ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, world);
+                }
+                write_color(std::cout, pixel_samples_scale * pixel_color);
             }
         }
 
@@ -33,16 +34,19 @@ class camera {
     }
 
   private:
-    
+    double pixel_samples_scale; //采样颜色比例因子
     point3 center;         // 相机坐标
     point3 pixel00_loc;    // 屏幕像素原点位置
     vec3   pixel_delta_u;  // 像素向右偏移量
     vec3   pixel_delta_v;  // 像素向下偏移量
     
+    
 
     void initialize() {
         image_height = int(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height;
+
+        pixel_samples_scale = 1.0 / samples_per_pixel;
 
         center = point3(0, 0, 0);
 
@@ -63,6 +67,25 @@ class camera {
         auto viewport_upper_left =
             center - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    }
+
+    ray get_ray(int i, int j) const {
+        //构造一个摄像机光线，从原点出发，获取到像素位置 i，j 周围的随机射线。
+
+        auto offset = sample_square();
+        auto pixel_sample = pixel00_loc
+                          + ((i + offset.x()) * pixel_delta_u)
+                          + ((j + offset.y()) * pixel_delta_v);
+
+        auto ray_origin = center;
+        auto ray_direction = pixel_sample - ray_origin;
+
+        return ray(ray_origin, ray_direction);
+    }
+
+    vec3 sample_square() const {
+        // 返回 [-.5,+.5] 之间的随机坐标
+        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
     color ray_color(const ray& r, const hittable& world) const {
