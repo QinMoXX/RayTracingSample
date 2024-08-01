@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 2.8)	  		# CMake最低版本要求，低于2.6的构建过程会被终止
-project( RayTracingSample )					  	# 定义工程名称
+cmake_minimum_required(VERSION 3.22)   #指定camke最低版本
+project(RayTracingSample)   #指定项目名称
+ 
+set(CMAKE_C_COMPILER gcc)   #设置编译器
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_STANDARD 11)  #设置c++版本
+ 
+ 
 include_directories( ${PROJECT_SOURCE_DIR}/include)
-add_executable( RayTracingSample src/main.cpp ) 		# 生成一个叫 Hello的可执行文件，其中可执行源文件路径为 src/main.cpp
+ 
+add_executable( RayTracingSample src/main.cpp ) 
+ 
