@@ -52,6 +52,12 @@ class vec3 {
     static vec3 random(double min, double max) {
         return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
     }
+
+    bool near_zero() const {
+        // 如果向量在所有维度上都接近零，返回 true。
+        auto s = 1e-8;
+        return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+    }
 };
 
 // point3 is just an alias for vec3, but useful for geometric clarity in the code.

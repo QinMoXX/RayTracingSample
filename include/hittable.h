@@ -3,13 +3,14 @@
 
 #include "ray.h"
 #include "interval.h"
-
+class material;
 class hit_record {
   public:
     point3 p;
     vec3 normal;
     double t;
     bool front_face;
+    shared_ptr<material> mat;
     
     /*记录模型正反面
     * front_face 是根据射线检测获取正反面标识
@@ -22,6 +23,8 @@ class hit_record {
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;
     }
+
+
 };
 
 class hittable {
@@ -29,6 +32,9 @@ class hittable {
     virtual ~hittable() = default;
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+
+  protected:
+    shared_ptr<material> mat;
 };
 
 #endif
