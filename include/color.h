@@ -10,9 +10,9 @@ using color = vec3;
 
 
 void write_color(std::ostream& out, const color& pixel_color) {
-    auto r = pixel_color.x();
-    auto g = pixel_color.y();
-    auto b = pixel_color.z();
+    auto r = sqrt(pixel_color.x());
+    auto g = sqrt(pixel_color.y());
+    auto b = sqrt(pixel_color.z());
 
     const interval intensity(0.000, 0.999);
     
