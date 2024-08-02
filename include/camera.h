@@ -4,6 +4,7 @@
 #include "rtweekend.h"
 
 #include "hittable.h"
+#include "material.h"
 
 class camera {
   public:
@@ -96,9 +97,11 @@ class camera {
         hit_record rec;
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
-            //随机漫反射
-            vec3 direction = rec.normal + random_unit_vector();
-            return 0.1 * ray_color(ray(rec.p, direction), depth-1, world);
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth-1, world);
+            return color(0,0,0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
