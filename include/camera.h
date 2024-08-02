@@ -14,6 +14,12 @@ class camera {
     int    image_height;   // 渲染图高度
     int    samples_per_pixel = 10; //每采样点随机采样点数
     int    max_depth         = 10;   // 限制最大递归深度
+    double vfov = 90; //垂直fov
+
+    point3 lookfrom = point3(0,0,0);   
+    point3 lookat   = point3(0,0,-1);  //相机朝向
+    vec3   vup      = vec3(0,1,0);     //相机直立空间向上坐标
+
 
     void render(const hittable& world) {
         initialize();
@@ -42,7 +48,7 @@ class camera {
     vec3   pixel_delta_u;  // 像素向右偏移量
     vec3   pixel_delta_v;  // 像素向下偏移量
     
-    
+    vec3   u, v, w; //相机空间基坐标
 
     void initialize() {
         image_height = int(image_width / aspect_ratio);
@@ -50,24 +56,29 @@ class camera {
 
         pixel_samples_scale = 1.0 / samples_per_pixel;
 
-        center = point3(0, 0, 0);
-
-        // Determine viewport dimensions.
-        auto focal_length = 1.0;
-        auto viewport_height = 2.0;
+        center = lookfrom;
+        // 视窗尺寸计算
+        auto focal_length = (lookfrom - lookat).length();
+        auto theta = degrees_to_radians(vfov);
+        auto h = std::tan(theta/2);
+        auto viewport_height = 2 * h * focal_length;
         auto viewport_width = viewport_height * (double(image_width)/image_height);
 
-        // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        auto viewport_u = vec3(viewport_width, 0, 0);
-        auto viewport_v = vec3(0, -viewport_height, 0);
+        // 计算摄像机基坐标
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
+        v = cross(w, u);
 
-        // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+        // 计算横跨水平视图和纵向视图边缘的向量。
+        vec3 viewport_u = viewport_width * u;    
+        vec3 viewport_v = viewport_height * -v;  
+
+        // 计算从像素水平和垂直增量向量。
         pixel_delta_u = viewport_u / image_width;
         pixel_delta_v = viewport_v / image_height;
 
-        // Calculate the location of the upper left pixel.
-        auto viewport_upper_left =
-            center - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
+        // 计算左上像素的位置。
+        auto viewport_upper_left = center - (focal_length * w) - viewport_u/2 - viewport_v/2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     }
 
