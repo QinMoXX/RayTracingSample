@@ -74,7 +74,7 @@ class dielectric : public material {
         * 当光线从较高折射率的介质进入到较低折射率的介质时，
         * 如果入射角大于临界角角时，发生全反射
         */
-        if (cannot_refract)
+      if (cannot_refract || reflectance(cos_theta, ri) > random_double())
             direction = reflect(unit_direction, rec.normal);
         else
             direction = refract(unit_direction, rec.normal, ri);
@@ -83,8 +83,17 @@ class dielectric : public material {
         return true;
     }
 
+    
+
   private:
     double refraction_index; //介质折射率比
+
+    static double reflectance(double cosine, double refraction_index) {
+        // 使用 Schlick、近似计算反射率
+        auto r0 = (1 - refraction_index) / (1 + refraction_index);
+        r0 = r0*r0;
+        return r0 + (1-r0)*std::pow((1 - cosine),5);
+    }
 };
 
 #endif
