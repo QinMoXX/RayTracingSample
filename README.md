@@ -1,5 +1,6 @@
 # RayTracingSample
 这是一个C++ 编写的光线追踪案例
+![alt text](image.png)
 
 # 运行方式
 构建程序
@@ -11,6 +12,7 @@ cmake --build build --config release
 ```shell
 .\build\Release\RayTracingSample.exe > image.ppm 
 ```
+包含物体过多时，纯cpu执行的追踪算法将极度耗时，请耐心等待。每500像素采样 1200宽度下的单线程耗时达到6000s。
 
 使用ppm工具打开，如果发现格式化错误，请使用转化为utf-8编码格式保存
 
